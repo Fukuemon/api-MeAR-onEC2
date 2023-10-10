@@ -23,7 +23,7 @@ class Connection(models.Model):
         return f"{self.follower} follows {self.following}"
 
 
-class Profile(models.Model, TimestampedModel):
+class Profile(TimestampedModel):
     """
     プロフィールモデル： ユーザーのプロフィール情報を管理する
     """
