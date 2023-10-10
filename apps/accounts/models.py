@@ -3,6 +3,12 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 # 継承することで、作成日と更新日を自動で追加するモデル
 class TimestampedModel(models.Model):
+    """
+    作成日時と更新日時を自動で追加する抽象モデル
+    メタ情報：
+    - このモデルを継承したモデルは、データベースにテーブルを作成しない
+    - データベースから取得したオブジェクトを作成日時と更新日時の降順で並び替える
+    """
     created_on = models.DateTimeField(auto_now_add=True)  # 作成日
     updated_on = models.DateTimeField(auto_now=True)  # 更新日
 
@@ -10,8 +16,10 @@ class TimestampedModel(models.Model):
         abstract = True
         ordering = ['-created_on', '-updated_on']
 
-#ユーザーモデルのベースとなるクラスを作成
 class UserManager(BaseUserManager):
+    """
+    ユーザーマネージャーモデル： ユーザーの作成、更新、削除などの操作を行う
+    """
     def create_user(self, email, password=None):
         if not email:
             raise ValueError("メールアドレスを設定してください")
@@ -37,6 +45,12 @@ class UserManager(BaseUserManager):
         return user
 
 class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
+    """
+    ユーザーモデル： ユーザーのアカウント情報と権限を管理する
+    AbstractBaseUser: ユーザー名、メールアドレス、パスワード、権限などの基本的なフィールドを持つモデル
+    PermissionsMixin: ユーザーに権限を付与するためのモデル
+    TimestampedModel: 作成日時と更新日時を自動で追加する抽象モデル
+    """
 
     email = models.EmailField(max_length=50, unique=True)
     is_active = models.BooleanField(default=True)
