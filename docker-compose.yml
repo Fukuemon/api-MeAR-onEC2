@@ -15,11 +15,11 @@ services:
     restart: always
     environment:
       - POSTGRES_DB=django
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - postgresdb:/var/lib/postgresql
 volumes:
   postgresdb:
