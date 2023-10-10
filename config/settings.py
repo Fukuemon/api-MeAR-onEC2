@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'rest_framework_simplejwt.token_blacklist',
-    'coresheaders',
+    'corsheaders',
     'apps.accounts',
     'apps.profiles',
 ]
@@ -140,10 +140,10 @@ MEDIA_URL = "/media/"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS
-CORS_ALLOWED_ORIGINS = {
+CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:8000",
-}
+]
 
 CORS_ALLOWED_WHITELIST = [
     "http://localhost:3000",
@@ -158,6 +158,9 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('JWT',),
 }
+
+# AUTH_USER_MODEL： カスタマイズしたユーザーモデルを指定
+AUTH_USER_MODEL = 'accounts.User'
 
 # DRF
 REST_FRAMEWORK = {
