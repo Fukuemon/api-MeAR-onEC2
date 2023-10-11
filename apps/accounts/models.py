@@ -62,3 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampedModel):
 
     def __str__(self):
         return self.email
+
+    @property
+    def username(self):
+        return self.profile.username

@@ -9,8 +9,12 @@ class UserSerializer(serializers.ModelSerializer):
     """
     ユーザー情報のシリアライザー
     """
+    created_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+    updated_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+
     class Meta:
         model = get_user_model()
+        fields = ("id","email","password","created_on","updated_on","is_staff","is_superuser", "profile")
         # パスワードは書き込み専用とする
         extra_kwargs = {"password":{"write_only": True}}
 
