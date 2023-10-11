@@ -2,6 +2,7 @@ from .models import User
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from apps.profiles.models import Profile
+from django.contrib.auth.hashers import check_password
 
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -38,6 +39,25 @@ class UserCreateSerializer(serializers.ModelSerializer):
         Profile.objects.create(user=user, **profile_data)
         return user
 
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """
+    パスワード変更用のシリアライザー
+    """
+    current_password = serializers.CharField(required=True, write_only=True)
+    password1 = serializers.CharField(required=True, write_only=True, min_length=5)
+    password2 = serializers.CharField(required=True, write_only=True, min_length=5)
+
+    def validate(self, data):
+        # 現在のパスワードが正しいか確認
+        if not check_password(data["current_password"], self.context["user"].password):
+            raise serializers.ValidationError({"current_password": "現在のパスワードが正しくありません"})
+
+        # 新しいパスワードが一致するか確認
+        if data["password1"] != data["password2"]:
+            raise serializers.ValidationError({"password2": "パスワードが一致しません"})
+
+        return data
 
 
 

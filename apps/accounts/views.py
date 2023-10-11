@@ -75,3 +75,14 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "User not deleted"}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=["POST"], detail=True)
+    def change_password(self, request, pk=None):
+        user = self.get_object(pk=pk)
+        password_serializer = ChangePasswordSerializer(data=request.data, context={"user": user})
+        if password_serializer.is_valid():
+            user.set_password(password_serializer.validated_data.get("password1"))
+            user.save()
+            return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response(password_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
