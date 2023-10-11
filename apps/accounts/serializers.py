@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from apps.profiles.models import Profile
 from django.contrib.auth.hashers import check_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -60,5 +61,10 @@ class ChangePasswordSerializer(serializers.Serializer):
         return data
 
 
+# =========================Auth(認証関連)==================================
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    # "access" と "refreshトークンを辞書型で返す"
+    # カスタマイズしたい場合は、ここに追加
+    pass
 
 

@@ -1,14 +1,19 @@
 from rest_framework import viewsets
 from .serializers import (
     UserSerializer,
-    UserCreateSerializer
+    UserCreateSerializer,
+    ChangePasswordSerializer,
+    CustomTokenObtainPairSerializer,
 )
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
-from .serializers import ChangePasswordSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth import authenticate
+from django.db.models.query_utils import Q
+
 
 def staff_required(view_func):
     """
@@ -86,3 +91,27 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
         else:
             return Response(password_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+    def post(self, request,*args, **keywargs):
+        email = request.data.get("email")
+        password = request.data.get("password")
+        user = authenticate(email=email).first()
+
+        if user:
+            login_serializer = self.serializer_class(data=request.data)
+            if login_serializer.is_valid():
+                return Response({
+                    "access": login_serializer.validated_data.get("access"),
+                    "refresh": login_serializer.validated_data.get("refresh"),
+                    "user": UserSerializer(user).data,
+                    "message": "ログイン成功"
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response(login_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message": "ユーザーが存在しません"}, status=status.HTTP_404_NOT_FOUND)
+
