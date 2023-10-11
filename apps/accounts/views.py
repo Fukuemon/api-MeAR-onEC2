@@ -12,6 +12,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
+from ..profiles.serializers import ProfileSerializer
 from django.db.models.query_utils import Q
 
 
@@ -41,7 +42,8 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return self.queryset
 
-    def get_object(self, pk):
+    def get_object(self):
+        pk = self.kwargs.get('pk')
         return get_object_or_404(self.get_queryset(), pk=pk)
 
     def get_permissions(self):
@@ -99,15 +101,17 @@ class LoginView(TokenObtainPairView):
     def post(self, request,*args, **keywargs):
         email = request.data.get("email")
         password = request.data.get("password")
-        user = authenticate(email=email).first()
+        user = authenticate(username=email, password=password)
+
 
         if user:
             login_serializer = self.serializer_class(data=request.data)
             if login_serializer.is_valid():
+                profile = user.profile
                 return Response({
                     "access": login_serializer.validated_data.get("access"),
                     "refresh": login_serializer.validated_data.get("refresh"),
-                    "user": UserSerializer(user).data,
+                    "profile": ProfileSerializer(profile).data,
                     "message": "ログイン成功"
                 }, status=status.HTTP_200_OK)
             else:
