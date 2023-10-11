@@ -164,10 +164,10 @@ AUTH_USER_MODEL = 'accounts.User'
 
 # DRF
 REST_FRAMEWORK = {
-    # # viewを特定のユーザにだけ見せるようにする
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ],
+    # viewを特定のユーザにだけ見せるようにする
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     # 認証方法を指定する
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication'
