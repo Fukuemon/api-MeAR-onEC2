@@ -7,7 +7,7 @@ def upload_avatar_path(instance, filename):
     ext = filename.split('.')[-1]
     # 保存先のファイルパスを生成
     # 生成されたファイルパスは 'avatars/{ユーザープロファイルのID}{ニックネーム}.{拡張子}'という形式になる
-    return '/'.join(['avatars', str(instance.userProfile.id) + str(instance.nickName) + str(".") + str(ext)])
+    return '/'.join(['avatars', str(instance.account.id) + str(instance.username) + str(".") + str(ext)])
 
 
 class Connection(models.Model):
@@ -46,4 +46,4 @@ class Profile(TimestampedModel):
     )
 
     def __str__(self):
-        return self.nickName
+        return self.username
