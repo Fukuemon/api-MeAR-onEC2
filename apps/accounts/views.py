@@ -13,6 +13,8 @@ from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 from ..profiles.serializers import ProfileSerializer
+from rest_framework.permissions import IsAuthenticated
+from drf_yasg.utils import swagger_auto_schema
 from django.db.models.query_utils import Q
 
 
@@ -42,7 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return self.queryset
 
-    def get_object(self):
+    def get_object(self, pk=None):
         pk = self.kwargs.get('pk')
         return get_object_or_404(self.get_queryset(), pk=pk)
 
@@ -64,9 +66,9 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def update(self, request, pk=None):
+    def update(self, request, pk=None, partial=False):
         user = self.get_object(pk=pk)
-        user_serializer = self.serializer_class(user, data=request.data)
+        user_serializer = self.serializer_class(user, data=request.data, partial=partial)
         if user_serializer.is_valid():
             user_serializer.save()
             return Response({"message": "User updated successfully", "data": user_serializer.data}, status=status.HTTP_200_OK)
@@ -83,9 +85,32 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return Response({"message": "User not deleted"}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=["POST"], detail=True)
-    def change_password(self, request, pk=None):
-        user = self.get_object(pk=pk)
+
+
+class MyAccountViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def retrieve(self, request):
+        user = self.get_object()
+        serializer = self.serializer_class(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def update(self, request):
+        user = self.get_object()
+        serializer = self.serializer_class(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Account updated successfully", "data": serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=["POST"], detail=False)
+    def change_password(self, request):
+        user = self.get_object()
         password_serializer = ChangePasswordSerializer(data=request.data, context={"user": user})
         if password_serializer.is_valid():
             user.set_password(password_serializer.validated_data.get("password1"))
@@ -93,6 +118,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
         else:
             return Response(password_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class LoginView(TokenObtainPairView):
