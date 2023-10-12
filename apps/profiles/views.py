@@ -30,4 +30,36 @@ class MyProfileListView(generics.ListAPIView):
     def get_queryset(self):
         return self.queryset.filter(account=self.request.user)
 
-# Create your views here.
+
+class ProfileFollowView(APIView):
+    """
+    フォロー機能のエンドポイント
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+
+    def post(self, request, account_id):
+        user = request.user
+        try:
+            target_user_profile = get_object_or_404(Profile, account__id=account_id)
+        except Http404:
+            return Response({"detail": "対象のユーザーが存在しません"}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.profile == target_user_profile:
+            return Response({"detail": "自身をフォローすることはできません"}, status=status.HTTP_400_BAD_REQUEST)
+        Connection.objects.create(follower=user.profile, following=target_user_profile)
+        return Response({"detail": "フォローに成功しました"}, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, account_id):
+        user = request.user
+        try: # ユーザーが存在しない場合は404を返す
+            target_user_profile = get_object_or_404(Profile, account__id=account_id)
+        except Http404:
+            return Response({"detail": "対象のユーザーが存在しません"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            connection = Connection.objects.get(follower=user.profile, following=target_user_profile)
+            connection.delete()
+            return Response({"detail": "フォロー解除に成功しました"}, status=status.HTTP_200_OK)
+        except Connection.DoesNotExist:
+            return Response({"detail": "フォローしていないユーザーです"}, status=status.HTTP_404_NOT_FOUND)

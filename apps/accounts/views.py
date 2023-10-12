@@ -14,7 +14,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 from ..profiles.serializers import ProfileSerializer
 from rest_framework.permissions import IsAuthenticated
-from drf_yasg.utils import swagger_auto_schema
 from django.db.models.query_utils import Q
 
 
