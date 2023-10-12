@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'apps.accounts',
     'apps.profiles',
+    'apps.posts',
+    'apps.restaurants',
 ]
 
 MIDDLEWARE = [
