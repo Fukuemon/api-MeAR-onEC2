@@ -35,7 +35,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['username', 'account',  'created_on', 'updated_on', 'img', 'followings', 'followers']
+        fields = ['id', 'username', 'account',  'created_on', 'updated_on', 'img', 'followings', 'followers']
         extra_kwargs = {"account": {"read_only": True}}
 
     def get_followings(self, profile_instance):
