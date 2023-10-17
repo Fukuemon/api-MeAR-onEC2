@@ -7,7 +7,7 @@ class Restaurant(models.Model):
     name = models.CharField(max_length=200)  # 店舗名
     lat = models.CharField(max_length=200)  # 緯度
     lng = models.CharField(max_length=200)  # 経度
-    area = models.CharField(max_length=200)  # 都道府県
+    area = models.CharField(max_length=200, null=True, blank=True)  # 都道府県
     address = models.CharField(max_length=200)  # 住所
 
     def __str__(self):
