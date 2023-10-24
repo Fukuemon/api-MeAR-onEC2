@@ -4,7 +4,7 @@ from apps.restaurants.models import Restaurant
 
 class CommentSerializer(serializers.ModelSerializer):
     """
-    コメントのシリアライザー：コメントの取得, 作成
+    コメントのシリアライザー：コメントの取得
     """
     comment_author = serializers.ReadOnlyField(source='profile.username')
     post_author = serializers.ReadOnlyField(source='post.author.username')
@@ -20,3 +20,27 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'comment', 'comment_author', 'author_image', 'post_author', 'created_on')
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    """
+    コメントのシリアライザー：コメントの作成
+    """
+    comment_author = serializers.ReadOnlyField(source='author.username')
+    post_author = serializers.ReadOnlyField(source='post.author.username')
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+
+class TagListSerializer(serializers.ModelSerializer):
+    """
+    タグのシリアライザー：タグの取得
+    """
+    created_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+    updated_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+
+    class Meta:
+        model = Tag
+        fields = '__all__'
