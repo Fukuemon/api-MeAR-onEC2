@@ -46,6 +46,7 @@ class Post(TimestampedModel):
         return self.menu_name
 
 
+
 class Tag(TimestampedModel):
     """
     タグモデル：タグ
@@ -60,7 +61,7 @@ class Comment(TimestampedModel):
     コメントモデル：コメント、投稿者、投稿
     """
     comment = models.TextField()
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     def __str__(self):
         return self.comment
