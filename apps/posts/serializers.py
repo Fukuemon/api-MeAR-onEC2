@@ -44,3 +44,25 @@ class TagListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
+
+
+class TagNameSerializer(serializers.ModelSerializer):
+    """
+    タグのシリアライザー：タグの取得
+    """
+
+    class Meta:
+        model = Tag
+        fields = ['tag']
+
+
+class RestaurantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Restaurant
+        fields = ['id', 'name', 'address', 'area']
+
+class RestaurantNameSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Restaurant
+        fields = ['name']
