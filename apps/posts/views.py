@@ -98,3 +98,30 @@ class CommentAPIView(APIView):
 
         return Response({'message': 'Post Comment successfully'},status=status.HTTP_201_CREATED)
 
+
+class PostLikeView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get_post(self, post_id):
+        try:
+            return get_object_or_404(Post, pk=post_id)
+        except Post.DoesNotExist:
+            return None
+
+    def post(self, request, post_id):
+        post = self.get_post(post_id)
+        if post:
+            post.likes.add(request.user.profile)
+            return Response({'message': 'Post liked successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Post does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, post_id):
+        post = self.get_post(post_id)
+        if post:
+            post.likes.remove(request.user.profile)
+            return Response({'message': 'Post unliked successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Post does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+
