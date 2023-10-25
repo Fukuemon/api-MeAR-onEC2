@@ -72,3 +72,29 @@ class TagListAPIView(generics.ListAPIView):
 
 
 
+
+class CommentAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+
+    def get(self, request, post_id=None):
+        comments = Comment.objects.filter(post=post_id)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, post_id=None):
+        # URLから取得したpost_idと、認証されたユーザーを使用してコメントを作成
+        data = request.data
+        data['post'] = post_id
+        data['author'] = request.user.profile.id  # これはrequest.userがProfileモデルとリンクされていると仮定しています
+
+        comment_serializer = CommentCreateSerializer(data=data)
+
+        # バリデーションを行い、無効な場合は自動的に例外を発生させる
+        comment_serializer.is_valid(raise_exception=True)
+
+        # シリアライザを使用してコメントを保存
+        comment_serializer.save()
+
+        return Response({'message': 'Post Comment successfully'},status=status.HTTP_201_CREATED)
+
