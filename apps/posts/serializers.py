@@ -90,3 +90,35 @@ class PostListSerializer(serializers.ModelSerializer):
     def get_likes(self, obj):
         return [user.username for user in obj.likes.all()]
 
+
+
+class PostCreateSerializer(serializers.ModelSerializer):
+    """
+    投稿作成のシリアライザー
+    投稿者, レストラン情報, カテゴリー, メニュー名, メニュー写真, メニューのモデル, レビュー文, タグ, score, 値段, 訪問日を入力する
+    """
+    restaurant_data = RestaurantSerializer(write_only=True, required=False)
+    tags = TagListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Post
+        fields = '__all__'
+        extra_kwargs = {
+            'restaurant': {'required': False},
+        }
+
+    def to_internal_value(self, data):
+        validated_data = super().to_internal_value(data)
+        restaurant_data = validated_data.pop('restaurant_data', None)
+
+        if restaurant_data:
+            restaurant, created = Restaurant.objects.get_or_create(
+                name=restaurant_data['name'],
+                defaults={
+                    'address': restaurant_data['address'],
+                    'area': restaurant_data['area']
+                }
+            )
+            validated_data['restaurant'] = restaurant
+
+        return validated_data
