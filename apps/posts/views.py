@@ -13,7 +13,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Post
 from .filters import PostFilter
 
-# Create your views here.
 
 
 
@@ -55,4 +54,21 @@ class PostViewSet(viewsets.ModelViewSet):
         post = self.get_object(pk)
         post.delete()
         return Response({'message': 'Post deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class TagListAPIView(generics.ListAPIView):
+    permission_classes = (AllowAny,)
+    queryset = Tag.objects.all()
+    pagination_class = None
+    serializer_class = TagListSerializer
+
+    def list(self, request):
+        serializer_data = self.get_queryset()
+        serializer = self.serializer_class(serializer_data, many=True)
+
+        return Response({
+            'tags': serializer.data
+        }, status=status.HTTP_200_OK)
+
+
 
