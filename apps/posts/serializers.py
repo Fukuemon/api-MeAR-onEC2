@@ -122,3 +122,26 @@ class PostCreateSerializer(serializers.ModelSerializer):
             validated_data['restaurant'] = restaurant
 
         return validated_data
+
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    """
+    投稿詳細のシリアライザー：投稿者, 投稿日時, レストラン, カテゴリー, メニュー名, メニュー写真, メニューのモデル, レビュー文, タグ, いいね, コメントを表示する
+    """
+    author = serializers.ReadOnlyField(source='author.username')
+    author_image = serializers.ReadOnlyField(source='author.image.url')
+    author_id = serializers.ReadOnlyField(source='author.id')
+    likes = serializers.SerializerMethodField()
+    comments = CommentSerializer(many=True, read_only=True)
+    tags = TagNameSerializer(many=True, read_only=True)
+    restaurant = RestaurantSerializer(read_only=True)
+    created_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+    updated_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+    visited_date = serializers.DateField(format="%Y-%m-%d", read_only=True)
+
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+    def get_likes(self, obj):
+        return [user.username for user in obj.likes.all()]
