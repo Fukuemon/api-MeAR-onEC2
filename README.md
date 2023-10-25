@@ -5,6 +5,8 @@
 ```mermaid
 erDiagram
     PROFILE ||--o| USER : "accout"
+    CONNECTION }|..|{ PROFILE : "follower"
+    CONNECTION }|..|{ PROFILE : "following"
     POST ||--o{ PROFILE : "author"
     POST ||--o{ PROFILE : "likes"
     POST ||--o{ RESTAURANT : "restaurant"
@@ -29,6 +31,9 @@ erDiagram
         DateTimeField updated_on
         CharField username
         ImageField img
+    }
+    CONNECTION {
+        BigAutoField id PK
     }
     POST {
         BigAutoField id PK
