@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from django.http import Http404
 
 from .models import Profile, Connection
-from .serializers import ProfileSerializer
+from .serializers import ProfileSerializer, ProfilePatchSerializer
 
 
 # プロフィールのCRUD操作を行うViewSet
@@ -24,11 +24,27 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
 
 # 自身のプロフィールを返すListView
-class MyProfileListView(generics.ListAPIView):
-    queryset = Profile.objects.all()
+
+class MyProfileView(APIView):
     serializer_class = ProfileSerializer
-    def get_queryset(self):
-        return self.queryset.filter(account=self.request.user)
+
+    def get(self, request, format=None):
+        profiles = Profile.objects.filter(account=request.user)
+        serializer = self.serializer_class(profiles, many=True)
+        return Response(serializer.data)
+
+    def patch(self, request, format=None):
+
+        try:
+            profile = Profile.objects.get(account=request.user)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProfilePatchSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileFollowView(APIView):
