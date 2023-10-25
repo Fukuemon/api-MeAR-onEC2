@@ -33,25 +33,21 @@ def staff_required(view_func):
     return wrapped_view
 
 
+from rest_framework.permissions import IsAdminUser, AllowAny
+
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        if self.queryset is None:
-            self.queryset = self.get_serializer().Meta.model.objects.filter(is_active=True)
-            return self.queryset
-        else:
-            return self.queryset
+        return self.get_serializer().Meta.model.objects.filter(is_active=True)
 
-    def get_object(self, pk=None):
-        pk = self.kwargs.get('pk')
-        return get_object_or_404(self.get_queryset(), pk=pk)
+    def get_object(self):
+        return get_object_or_404(self.get_queryset(), pk=self.kwargs.get('pk'))
 
     def get_permissions(self):
         if self.action == "create":
             return [AllowAny()]
-        else:
-            return super().get_permissions()
+        return [IsAdminUser()]
 
     def list(self, request):
         user_serializer = self.serializer_class(self.get_queryset(), many=True)
@@ -62,27 +58,21 @@ class UserViewSet(viewsets.ModelViewSet):
         if user_serializer.is_valid():
             user_serializer.save()
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk=None, partial=False):
-        user = self.get_object(pk=pk)
+        user = self.get_object()
         user_serializer = self.serializer_class(user, data=request.data, partial=partial)
         if user_serializer.is_valid():
             user_serializer.save()
             return Response({"message": "User updated successfully", "data": user_serializer.data}, status=status.HTTP_200_OK)
-        else:
-            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @staff_required
     def destroy(self, request, pk=None):
-        user = self.get_object(pk=pk)
+        user = self.get_object()
         user.is_active = False
-        if user.is_active == False:
-            user.save()
-            return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "User not deleted"}, status=status.HTTP_400_BAD_REQUEST)
+        user.save()
+        return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
 
 
 
@@ -112,7 +102,7 @@ class MyAccountViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         password_serializer = ChangePasswordSerializer(data=request.data, context={"user": user})
         if password_serializer.is_valid():
-            user.set_password(password_serializer.validated_data.get("password1"))
+            user.set_password(password_serializer.validated_data["password1"])
             user.save()
             return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
         else:
