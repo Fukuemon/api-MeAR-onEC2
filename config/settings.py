@@ -45,8 +45,11 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'django_filters',
     'apps.accounts',
     'apps.profiles',
+    'apps.posts',
+    'apps.restaurants',
 ]
 
 MIDDLEWARE = [
