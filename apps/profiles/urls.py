@@ -9,6 +9,6 @@ router.register("", ProfileViewSet)
 
 urlpatterns=[
     path("me/", MyProfileListView.as_view(), name="myprofile"),
-    path('follow/<int:account_id>/', ProfileFollowView.as_view(), name='follow-user'),
+    path('<int:account_id>/follow/', ProfileFollowView.as_view(), name='follow-user'),
     path("",include(router.urls)),
 ]
