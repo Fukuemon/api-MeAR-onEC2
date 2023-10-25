@@ -48,5 +48,6 @@ urlpatterns = [
     # ViewSets
     path("account/", include("apps.accounts.urls")),
     path("profile/", include("apps.profiles.urls")),
+    path("post/", include("apps.posts.urls")),
 ]
 
