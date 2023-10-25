@@ -66,3 +66,27 @@ class RestaurantNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         fields = ['name']
+
+class PostListSerializer(serializers.ModelSerializer):
+    """
+    投稿一覧のシリアライザー
+    投稿のid, 投稿者のid, 投稿者, 投稿者画像, レストランの情報, タグ,  カテゴリー, メニュー名, メニュー写真,  いいね, コメント, 訪問日, 作成日時, 更新日時
+    """
+    author = serializers.ReadOnlyField(source='author.username')
+    author_image = serializers.ReadOnlyField(source='author.image.url')
+    author_id = serializers.ReadOnlyField(source='author.id')
+    likes = serializers.SerializerMethodField()
+    comments = CommentSerializer(many=True, read_only=True)
+    tags = TagNameSerializer(many=True, read_only=True)
+    restaurant = RestaurantNameSerializer(read_only=True)
+    created_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+    updated_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+    visited_date = serializers.DateField(format="%Y-%m-%d", read_only=True)
+
+    class Meta:
+        model = Post
+        fields = ['id', 'author', 'author_image', 'author_id', 'restaurant', 'tags', 'menu_name', 'menu_photo', 'likes', 'comments', 'visited_date', 'created_on', 'updated_on']
+
+    def get_likes(self, obj):
+        return [user.username for user in obj.likes.all()]
+
