@@ -1,7 +1,11 @@
 # api-MeAR
 3Dで見るグルメレビューアプリのバックエンド
 
-# ER図
+#📗Document
+[セットアップ](docs/docker&djnago-setup.md)
+
+
+#ER図
 ```mermaid
 erDiagram
     PROFILE ||--o| USER : "accout"
