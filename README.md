@@ -1,23 +1,13 @@
 # api-MeAR
-<<<<<<< HEAD
 ~MeAR~ 3Dで見るグルメレビューアプリのバックエンド
-=======
-3Dで見るグルメレビューアプリのバックエンド
-
 # 📗Document
 [セットアップ](docs/docker&djnago-setup.md)
-
->>>>>>> origin/main
-
 # ER図
 ```mermaid
 erDiagram
     PROFILE ||--o| USER : "accout"
-<<<<<<< HEAD
-=======
     CONNECTION }|..|{ PROFILE : "follower"
     CONNECTION }|..|{ PROFILE : "following"
->>>>>>> origin/main
     POST ||--o{ PROFILE : "author"
     POST ||--o{ PROFILE : "likes"
     POST ||--o{ RESTAURANT : "restaurant"
@@ -43,12 +33,9 @@ erDiagram
         CharField username
         ImageField img
     }
-<<<<<<< HEAD
-=======
     CONNECTION {
         BigAutoField id PK
     }
->>>>>>> origin/main
     POST {
         BigAutoField id PK
         DateTimeField created_on
