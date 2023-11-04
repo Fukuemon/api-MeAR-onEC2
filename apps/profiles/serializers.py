@@ -53,3 +53,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         followers = Connection.objects.filter(following=profile_instance)
         follower_profiles = [connection.follower for connection in followers]
         return FollowsProfileSerializer(follower_profiles, many=True).data
+
+class ProfilePatchSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Profile
+        fields = ['id', 'username', 'account', 'img']
+        extra_kwargs = {"account": {"read_only": True}}
