@@ -6,9 +6,7 @@ from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
-    """
-    ユーザー情報のシリアライザー
-    """
+
     created_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
     updated_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
 
@@ -19,9 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password":{"write_only": True}}
 
 class UserCreateSerializer(serializers.ModelSerializer):
-    """
-    ユーザー登録用のシリアライザー
-    """
+
     username = serializers.CharField(source="profile.username", required=True)
     img = serializers.ImageField(source="profile.img", required=False)
 
@@ -31,11 +27,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password":{"write_only": True}}
 
     def create(self, validated_data):
-        """
-        ユーザー登録時に呼ばれるメソッド
-        :param validated_data:
-        :return:
-        """
+
         profile_data = validated_data.pop("profile", {})
         user = get_user_model().objects.create_user(
             email = validated_data["email"],
@@ -46,9 +38,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    """
-    パスワード変更用のシリアライザー
-    """
+
     current_password = serializers.CharField(required=True, write_only=True)
     password1 = serializers.CharField(required=True, write_only=True, min_length=5)
     password2 = serializers.CharField(required=True, write_only=True, min_length=5)
@@ -65,10 +55,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         return data
 
 
-# =========================Auth(認証関連)==================================
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    # "access" と "refreshトークンを辞書型で返す"
-    # カスタマイズしたい場合は、ここに追加
     pass
 
 

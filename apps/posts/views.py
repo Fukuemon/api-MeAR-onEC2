@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+
 from .serializers import CommentSerializer, CommentCreateSerializer, PostListSerializer, PostCreateSerializer, \
     TagListSerializer, PostDetailSerializer
 from rest_framework.response import Response
@@ -6,7 +7,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Post, Tag , Comment
 from rest_framework import generics
-from rest_framework.permissions import AllowAny,  IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -26,6 +27,11 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_object(self, pk=None):
         return get_object_or_404(Post, pk=pk)
+
+    def get_permissions(self):
+        if self.action == "list" or self.action == "retrieve":
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
 
     def create(self, request):
