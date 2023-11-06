@@ -22,6 +22,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(account=self.request.user)
 
+    def get_permissions(self):
+        if self.action == "list" or self.action == "retrieve":
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
 
 # 自身のプロフィールを返すListView
 
