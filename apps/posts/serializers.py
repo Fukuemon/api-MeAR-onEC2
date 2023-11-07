@@ -89,7 +89,9 @@ class PostListSerializer(serializers.ModelSerializer):
         fields = ['id', 'author', 'author_image', 'author_id', 'restaurant', 'tags', 'menu_name', 'menu_photo', 'likes', 'comments', 'visited_date', 'created_on', 'updated_on', 'model_exists_flg']
 
     def get_likes(self, obj):
-        return [user.username for user in obj.likes.all()]
+        return [{'id': user.id, 'username': user.username} for user in obj.likes.all()]
+
+
     def get_model_exists_flg(self, obj):
         return obj.menu_model is not None and bool(obj.menu_model.name)
 
@@ -147,4 +149,12 @@ class PostDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_likes(self, obj):
-        return [user.username for user in obj.likes.all()]
+        likes_data = []
+        for user in obj.likes.all():
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'avatar_image': user.img.url if user.img else None  # imgが存在しない場合はNoneを返す
+            }
+            likes_data.append(user_data)
+        return likes_data
