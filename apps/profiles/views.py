@@ -68,6 +68,16 @@ class PostByProfileListView(generics.ListAPIView):
         return Post.objects.filter(author_id=profile_id)
 
 
+class LikedPostsView(generics.ListAPIView):
+    serializer_class = PostListSerializer
+
+    def get_queryset(self):
+        # ログインユーザーのプロフィールインスタンスを取得
+        profile = self.request.user.profile
+        # そのプロフィールに紐づいた「いいね」をされた投稿のみをフィルタリング
+        return Post.objects.filter(likes=profile).distinct().order_by('-created_on')
+
+
 class ProfileFollowView(APIView):
     """
     フォロー機能のエンドポイント
