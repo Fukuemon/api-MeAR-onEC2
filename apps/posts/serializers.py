@@ -53,7 +53,7 @@ class TagNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['tag']
+        fields = ['tag', 'id']
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
@@ -65,7 +65,7 @@ class RestaurantNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Restaurant
-        fields = ['name']
+        fields = ['id', 'name']
 
 class PostListSerializer(serializers.ModelSerializer):
     """
@@ -82,13 +82,16 @@ class PostListSerializer(serializers.ModelSerializer):
     created_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
     updated_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
     visited_date = serializers.DateField(format="%Y-%m-%d", read_only=True)
+    model_exists_flg = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'author_image', 'author_id', 'restaurant', 'tags', 'menu_name', 'menu_photo', 'likes', 'comments', 'visited_date', 'created_on', 'updated_on']
+        fields = ['id', 'author', 'author_image', 'author_id', 'restaurant', 'tags', 'menu_name', 'menu_photo', 'likes', 'comments', 'visited_date', 'created_on', 'updated_on', 'model_exists_flg']
 
     def get_likes(self, obj):
         return [user.username for user in obj.likes.all()]
+    def get_model_exists_flg(self, obj):
+        return obj.menu_model is not None and bool(obj.menu_model.name)
 
 
 
