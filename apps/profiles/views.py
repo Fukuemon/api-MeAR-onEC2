@@ -76,6 +76,13 @@ class LikedPostsView(generics.ListAPIView):
         profile = self.request.user.profile
         # そのプロフィールに紐づいた「いいね」をされた投稿のみをフィルタリング
         return Post.objects.filter(likes=profile).distinct().order_by('-created_on')
+class LikedPostsByProfileIdView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = PostListSerializer
+
+    def get_queryset(self):
+        profile_id = self.kwargs.get('profile_id')
+        return Post.objects.filter(likes__id=profile_id).distinct().order_by('-created_on')
 
 
 class ProfileFollowView(APIView):
