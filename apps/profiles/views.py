@@ -1,3 +1,4 @@
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -9,6 +10,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import Profile, Connection
 from .serializers import ProfileSerializer, ProfilePatchSerializer
+from ..posts.models import Post
+from ..posts.serializers import PostListSerializer
 
 
 # プロフィールのCRUD操作を行うViewSet
@@ -50,6 +53,19 @@ class MyProfileView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PostByProfileListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = PostListSerializer
+
+    def get_queryset(self):
+        profile_id = self.kwargs['profile_id']
+        # Profile インスタンスの存在を確認
+        if not Profile.objects.filter(id=profile_id).exists():
+            raise NotFound(detail="Profile not found")
+
+        # author の related_name を使用して Post インスタンスを取得
+        return Post.objects.filter(author_id=profile_id)
 
 
 class ProfileFollowView(APIView):
