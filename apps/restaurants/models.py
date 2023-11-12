@@ -9,6 +9,7 @@ class Restaurant(models.Model):
     lng = models.FloatField(max_length=200)  # 経度
     area = models.CharField(max_length=200, null=True, blank=True)  # 都道府県
     address = models.CharField(max_length=200)  # 住所
+    url = models.URLField(max_length=200, null=True, blank=True)  # URL
 
     def __str__(self):
         return self.name

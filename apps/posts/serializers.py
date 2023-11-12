@@ -61,11 +61,6 @@ class RestaurantSerializer(serializers.ModelSerializer):
         model = Restaurant
         fields = ['id', 'name', 'address', 'area']
 
-class RestaurantNameSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Restaurant
-        fields = ['id', 'name']
 
 class PostListSerializer(serializers.ModelSerializer):
     """
@@ -78,7 +73,7 @@ class PostListSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)
     tags = TagNameSerializer(many=True, read_only=True)
-    restaurant = RestaurantNameSerializer(read_only=True)
+    restaurant = RestaurantSerializer(read_only=True)
     created_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
     updated_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
     visited_date = serializers.DateField(format="%Y-%m-%d", read_only=True)
