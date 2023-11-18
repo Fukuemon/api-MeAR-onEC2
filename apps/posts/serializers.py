@@ -103,6 +103,15 @@ class PostCreateSerializer(serializers.ModelSerializer):
             'restaurant': {'required': False},
         }
 
+    def set_tags(self, post, tags_data):
+        post.tags.set(tags_data)
+
+    def create(self, validated_data):
+        tags_data = validated_data.pop('tags', [])
+        post = Post.objects.create(**validated_data)
+        self.set_tags(post, tags_data)
+        return post
+
     def to_internal_value(self, data):
         validated_data = super().to_internal_value(data)
         restaurant_data = validated_data.pop('restaurant_data', None)
