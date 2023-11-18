@@ -91,18 +91,14 @@ class PostListSerializer(serializers.ModelSerializer):
         return obj.menu_model is not None and bool(obj.menu_model.name)
 
 
-
 class PostCreateSerializer(serializers.ModelSerializer):
-    """
-    投稿作成のシリアライザー
-    投稿者, レストラン情報, カテゴリー, メニュー名, メニュー写真, メニューのモデル, レビュー文, タグ, score, 値段, 訪問日を入力する
-    """
     restaurant_data = RestaurantSerializer(write_only=True, required=False)
-    tags = TagListSerializer(many=True, read_only=True)
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all(), write_only=True)
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['id', 'restaurant', 'tags', 'menu_name', 'menu_photo', 'menu_model', 'review_text', 'score', 'price',
+                  'visited_date', 'restaurant_data']
         extra_kwargs = {
             'restaurant': {'required': False},
         }
