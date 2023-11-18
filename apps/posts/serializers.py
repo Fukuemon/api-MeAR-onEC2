@@ -167,3 +167,24 @@ class PostDetailSerializer(serializers.ModelSerializer):
             }
             likes_data.append(user_data)
         return likes_data
+
+
+class PostUpdateSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all(), required=False)
+    restaurant = serializers.PrimaryKeyRelatedField(queryset=Restaurant.objects.all(), required=False)
+
+    class Meta:
+        model = Post
+        fields = ['review_text', 'score', 'tags', 'menu_name', 'price', 'visited_date', 'restaurant', 'menu_photo', 'menu_model']
+
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop('tags', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if tags_data is not None:
+            instance.tags.set(tags_data)
+
+        return instance
