@@ -117,6 +117,12 @@ class PostCreateSerializer(serializers.ModelSerializer):
         restaurant_data = validated_data.pop('restaurant_data', None)
 
         if restaurant_data:
+            missing_fields = [field for field in ['name', 'address', 'area', 'lat', 'lng'] if
+                              restaurant_data.get(field) is None]
+            if missing_fields:
+                error_msg = f"レストランデータに必須のフィールドが不足しています: {', '.join(missing_fields)}"
+                raise serializers.ValidationError(error_msg)
+
             restaurant, created = Restaurant.objects.get_or_create(
                 name=restaurant_data['name'],
                 defaults={
