@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
 from .serializers import CommentSerializer, CommentCreateSerializer, PostListSerializer, PostCreateSerializer, \
-    TagListSerializer, PostDetailSerializer
+    TagListSerializer, PostDetailSerializer, PostUpdateSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -34,10 +34,12 @@ class PostViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
+
         post_serializer = PostCreateSerializer(data=request.data)
         if post_serializer.is_valid():
-            post_serializer.save()
+            author = request.user.profile
+            post_serializer.save(author=author)
             return Response(post_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -47,9 +49,11 @@ class PostViewSet(viewsets.ModelViewSet):
         post_serializer = PostDetailSerializer(post)
         return Response(post_serializer.data, status=status.HTTP_200_OK)
 
-    def update(self, request, pk=None, **kwargs):  # **kwargsを追加
-        partial = kwargs.pop('partial', False)  # partial引数を取得
-        post_serializer = PostDetailSerializer(self.get_object(pk), data=request.data, partial=partial)
+    def update(self, request, pk=None, **kwargs):
+        partial = kwargs.pop('partial', False)
+        post = self.get_object(pk)
+        post_serializer = PostUpdateSerializer(post, data=request.data, partial=partial)
+
         if post_serializer.is_valid():
             post_serializer.save()
             return Response(post_serializer.data, status=status.HTTP_200_OK)
@@ -72,9 +76,7 @@ class TagListAPIView(generics.ListAPIView):
         serializer_data = self.get_queryset()
         serializer = self.serializer_class(serializer_data, many=True)
 
-        return Response({
-            'tags': serializer.data
-        }, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
