@@ -59,7 +59,7 @@ class TagNameSerializer(serializers.ModelSerializer):
 class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
-        fields = ['id', 'name', 'address', 'area']
+        fields = ['id', 'name', 'address', 'area', 'lat', 'lng', 'url']
 
 
 class PostListSerializer(serializers.ModelSerializer):
