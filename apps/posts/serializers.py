@@ -127,7 +127,10 @@ class PostCreateSerializer(serializers.ModelSerializer):
                 name=restaurant_data['name'],
                 defaults={
                     'address': restaurant_data['address'],
-                    'area': restaurant_data['area']
+                    'area': restaurant_data['area'],
+                    'lat': restaurant_data['lat'],
+                    'lng': restaurant_data['lng'],
+                    'url': restaurant_data.get('url', None),
                 }
             )
             validated_data['restaurant'] = restaurant
