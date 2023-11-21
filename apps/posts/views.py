@@ -10,7 +10,7 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Post
 from .filters import PostFilter
 
@@ -21,6 +21,7 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostListSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = PostFilter
+    parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
         return Post.objects.all()

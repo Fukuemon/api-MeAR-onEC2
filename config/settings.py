@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = False
 if not DEBUG:
-    ALLOWED_HOSTS = [ "57.180.136.205" ]
+    ALLOWED_HOSTS = [ "57.180.136.205", "http://localhost:3000", "http://localhost:8000", "https://mear.vercel.app" ]
 
     SECRET_KEY  = config('SECRET_KEY')
     DATABASES = {
@@ -158,6 +158,8 @@ MEDIA_URL = S3_URL
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 
+# settings.py
+DEFAULT_FILE_STORAGE = 'apps.storages.CustomS3Boto3Storage'
 
 # CORS
 
@@ -175,7 +177,6 @@ AWS_DEFAULT_ACL = None
 # ]
 
 CORS_ORIGIN_ALLOW_ALL=True
-
 # JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -199,3 +200,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication'
     ]
 }
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 41943040   # 30 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 41943040  # 30 MB
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://localhost:8000", "https://mear.vercel.app" ]
