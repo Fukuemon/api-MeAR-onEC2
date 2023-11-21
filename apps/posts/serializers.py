@@ -92,50 +92,42 @@ class PostListSerializer(serializers.ModelSerializer):
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
-    restaurant_data = RestaurantSerializer(write_only=True, required=False)
+    restaurant_data = serializers.JSONField(write_only=True, required=False)
     tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all(), write_only=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'restaurant', 'tags', 'menu_name', 'menu_photo', 'menu_model', 'review_text', 'score', 'price',
-                  'visited_date', 'restaurant_data']
+        fields = ['id', 'restaurant', 'tags', 'menu_name', 'menu_photo', 'menu_model', 'review_text', 'score', 'price', 'visited_date', 'restaurant_data']
         extra_kwargs = {
             'restaurant': {'required': False},
         }
 
-    def set_tags(self, post, tags_data):
-        post.tags.set(tags_data)
+    def validate_restaurant_data(self, value):
+
+        required_fields = ['name', 'address', 'area', 'lat', 'lng']
+        missing_fields = [field for field in required_fields if value.get(field) is None]
+        if missing_fields:
+            error_msg = f"レストランデータに必須のフィールドが不足しています: {', '.join(missing_fields)}"
+            raise serializers.ValidationError(error_msg)
+        return value
 
     def create(self, validated_data):
         tags_data = validated_data.pop('tags', [])
+        restaurant_data = validated_data.pop('restaurant_data', None)
+
+        if restaurant_data:
+            restaurant, created = Restaurant.objects.get_or_create(
+                name=restaurant_data['name'],
+                defaults=restaurant_data
+            )
+            validated_data['restaurant'] = restaurant
+
         post = Post.objects.create(**validated_data)
         self.set_tags(post, tags_data)
         return post
 
-    def to_internal_value(self, data):
-        validated_data = super().to_internal_value(data)
-        restaurant_data = validated_data.pop('restaurant_data', None)
-
-        if restaurant_data:
-            missing_fields = [field for field in ['name', 'address', 'area', 'lat', 'lng'] if
-                              restaurant_data.get(field) is None]
-            if missing_fields:
-                error_msg = f"レストランデータに必須のフィールドが不足しています: {', '.join(missing_fields)}"
-                raise serializers.ValidationError(error_msg)
-
-            restaurant, created = Restaurant.objects.get_or_create(
-                name=restaurant_data['name'],
-                defaults={
-                    'address': restaurant_data['address'],
-                    'area': restaurant_data['area'],
-                    'lat': restaurant_data['lat'],
-                    'lng': restaurant_data['lng'],
-                    'url': restaurant_data.get('url', None),
-                }
-            )
-            validated_data['restaurant'] = restaurant
-
-        return validated_data
+    def set_tags(self, post, tags_data):
+        post.tags.set(tags_data)
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
