@@ -160,17 +160,21 @@ AWS_DEFAULT_ACL = None
 
 
 # CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:8000",
-    "https://mear.vercel.app",
-]
 
-CORS_ALLOWED_WHITELIST = [
-    "http://localhost:3000",
-    "http://localhost:8000",
-    "https://mear.vercel.app",
-]
+#
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://localhost:8000",
+#     "https://mear.vercel.app",
+# ]
+#
+# CORS_ALLOWED_WHITELIST = [
+#     "http://localhost:3000",
+#     "http://localhost:8000",
+#     "https://mear.vercel.app",
+# ]
+
+CORS_ORIGIN_ALLOW_ALL=True
 
 # JWT
 SIMPLE_JWT = {
