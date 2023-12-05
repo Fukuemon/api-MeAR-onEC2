@@ -18,29 +18,20 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-DEBUG = False
+DEBUG = config('DEBUG')
+
+# ALLOWED_HOSTS
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "http://localhost:3000", "http://localhost:8000"]
+# 本番環境の追加設定
 if not DEBUG:
-    ALLOWED_HOSTS = [ "57.180.136.205", "http://localhost:3000", "http://localhost:8000", "https://mear.vercel.app" ]
+    ALLOWED_HOSTS += ["57.180.136.205", "https://mear.vercel.app"]
 
-    SECRET_KEY  = config('SECRET_KEY')
-    DATABASES = {
-            'default': {
-                'ENGINE': config('DB_ENGINE'),
-                'NAME': config('DB_NAME'),
-                'USER': config('DB_USER'),
-                'PASSWORD': config('DB_PASSWORD'),
-                'HOST': config('DB_HOST'),
-                'PORT': config('DB_PORT'),
-            }
-        }
-
+SECRET_KEY = config('SECRET_KEY')
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -93,13 +84,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
-
-
-# Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -117,10 +103,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# データベース設定
+DATABASES = {
+        'default': {
+            'ENGINE': config('DB_ENGINE'),
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT'),
+        }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'ja'
 
 TIME_ZONE = 'Asia/Tokyo'
@@ -133,37 +129,55 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+# 静的ファイル設定
 STATIC_URL = '/static/'
-STATIC_ROOT = "/var/www/{}/static".format(BASE_DIR.name)
-MEDIA_URL = "/media/"
-MEDIA_ROOT = "/var/www/{}/media".format(BASE_DIR.name)
+
+# メディアファイル設定
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# 本番環境
+if not DEBUG:
+    STATIC_URL = '/static/'
+    STATIC_ROOT = "/var/www/{}/static".format(BASE_DIR.name)
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = "/var/www/{}/media".format(BASE_DIR.name)
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# S3
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
 
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-S3_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
-MEDIA_URL = S3_URL
+# 本番環境でのAWS S3設定
+if not DEBUG:
+    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    S3_URL = f'http://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
+    MEDIA_URL = S3_URL
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
 
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
+# AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+# AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+# AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# S3_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
+# MEDIA_URL = S3_URL
+
+
 
 # settings.py
-DEFAULT_FILE_STORAGE = 'apps.storages.CustomS3Boto3Storage'
+
 
 # CORS
+# すべてのサイトを許可
+CORS_ORIGIN_ALLOW_ALL=True
 
-#
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:3000",
 #     "http://localhost:8000",
@@ -176,7 +190,6 @@ DEFAULT_FILE_STORAGE = 'apps.storages.CustomS3Boto3Storage'
 #     "https://mear.vercel.app",
 # ]
 
-CORS_ORIGIN_ALLOW_ALL=True
 # JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -201,7 +214,9 @@ REST_FRAMEWORK = {
     ]
 }
 
+# Fileのアップロード上限
 DATA_UPLOAD_MAX_MEMORY_SIZE = 41943040   # 30 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 41943040  # 30 MB
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://localhost:8000", "https://mear.vercel.app" ]
+# CSRFトークンの設定
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://localhost:8000", "https://mear.vercel.app"]
