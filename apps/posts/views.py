@@ -1,20 +1,26 @@
-from rest_framework import viewsets
-
-from .serializers import CommentSerializer, CommentCreateSerializer, PostListSerializer, PostCreateSerializer, \
-    TagListSerializer, PostDetailSerializer, PostUpdateSerializer
-from rest_framework.response import Response
-from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Post, Tag , Comment
-from rest_framework import generics
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.parsers import MultiPartParser, FormParser
-from .models import Post
+from rest_framework import generics
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.parsers import FormParser
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .filters import PostFilter
-
-
+from .models import Comment
+from .models import Post
+from .models import Tag
+from .serializers import CommentCreateSerializer
+from .serializers import CommentSerializer
+from .serializers import PostCreateSerializer
+from .serializers import PostDetailSerializer
+from .serializers import PostListSerializer
+from .serializers import PostUpdateSerializer
+from .serializers import TagListSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -34,9 +40,7 @@ class PostViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         return [IsAuthenticated()]
 
-
     def create(self, request, *args, **kwargs):
-
         post_serializer = PostCreateSerializer(data=request.data)
         if post_serializer.is_valid():
             author = request.user.profile
@@ -51,7 +55,7 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(post_serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         post = self.get_object(pk)
         post_serializer = PostUpdateSerializer(post, data=request.data, partial=partial)
 
@@ -64,7 +68,9 @@ class PostViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         post = self.get_object(pk)
         post.delete()
-        return Response({'message': 'Post deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Post deleted successfully"}, status=status.HTTP_204_NO_CONTENT
+        )
 
 
 class TagListAPIView(generics.ListAPIView):
@@ -80,11 +86,8 @@ class TagListAPIView(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
-
 class CommentAPIView(APIView):
     permission_classes = (IsAuthenticated,)
-
 
     def get(self, request, post_id=None):
         comments = Comment.objects.filter(post=post_id)
@@ -94,8 +97,10 @@ class CommentAPIView(APIView):
     def post(self, request, post_id=None):
         # URLから取得したpost_idと、認証されたユーザーを使用してコメントを作成
         data = request.data
-        data['post'] = post_id
-        data['author'] = request.user.profile.id  # これはrequest.userがProfileモデルとリンクされていると仮定しています
+        data["post"] = post_id
+        data[
+            "author"
+        ] = request.user.profile.id  # これはrequest.userがProfileモデルとリンクされていると仮定しています
 
         comment_serializer = CommentCreateSerializer(data=data)
 
@@ -105,7 +110,9 @@ class CommentAPIView(APIView):
         # シリアライザを使用してコメントを保存
         comment_serializer.save()
 
-        return Response({'message': 'Post Comment successfully'},status=status.HTTP_201_CREATED)
+        return Response(
+            {"message": "Post Comment successfully"}, status=status.HTTP_201_CREATED
+        )
 
 
 class PostLikeView(APIView):
@@ -121,16 +128,22 @@ class PostLikeView(APIView):
         post = self.get_post(post_id)
         if post:
             post.likes.add(request.user.profile)
-            return Response({'message': 'Post liked successfully'}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Post liked successfully"}, status=status.HTTP_200_OK
+            )
         else:
-            return Response({'message': 'Post does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "Post does not exist"}, status=status.HTTP_404_NOT_FOUND
+            )
 
     def delete(self, request, post_id):
         post = self.get_post(post_id)
         if post:
             post.likes.remove(request.user.profile)
-            return Response({'message': 'Post unliked successfully'}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Post unliked successfully"}, status=status.HTTP_200_OK
+            )
         else:
-            return Response({'message': 'Post does not exist'}, status=status.HTTP_404_NOT_FOUND)
-
-
+            return Response(
+                {"message": "Post does not exist"}, status=status.HTTP_404_NOT_FOUND
+            )
