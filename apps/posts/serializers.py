@@ -122,16 +122,12 @@ class PostListSerializer(serializers.ModelSerializer):
 
 class PostCreateSerializer(serializers.ModelSerializer):
     restaurant_data = serializers.JSONField(write_only=True, required=False)
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Tag.objects.all(), write_only=True
-    )
 
     class Meta:
         model = Post
         fields = [
             "id",
             "restaurant",
-            "tags",
             "menu_name",
             "menu_photo",
             "menu_model",
@@ -156,7 +152,6 @@ class PostCreateSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        tags_data = validated_data.pop("tags", [])
         restaurant_data = validated_data.pop("restaurant_data", None)
 
         if restaurant_data:
@@ -164,13 +159,8 @@ class PostCreateSerializer(serializers.ModelSerializer):
                 name=restaurant_data["name"], defaults=restaurant_data
             )
             validated_data["restaurant"] = restaurant
-
         post = Post.objects.create(**validated_data)
-        self.set_tags(post, tags_data)
         return post
-
-    def set_tags(self, post, tags_data):
-        post.tags.set(tags_data)
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
@@ -208,9 +198,6 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
 
 class PostUpdateSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Tag.objects.all(), required=False
-    )
     restaurant = serializers.PrimaryKeyRelatedField(
         queryset=Restaurant.objects.all(), required=False
     )
@@ -220,7 +207,6 @@ class PostUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "review_text",
             "score",
-            "tags",
             "menu_name",
             "price",
             "visited_date",
@@ -230,13 +216,8 @@ class PostUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        tags_data = validated_data.pop("tags", None)
-
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-
-        if tags_data is not None:
-            instance.tags.set(tags_data)
 
         return instance

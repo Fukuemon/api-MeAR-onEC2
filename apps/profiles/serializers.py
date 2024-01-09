@@ -1,26 +1,31 @@
 from rest_framework import serializers
-from apps.profiles.models import Profile , Connection
+
+from apps.profiles.models import Connection
+from apps.profiles.models import Profile
+
 
 #
 class FollowsProfileSerializer(serializers.ModelSerializer):
     """
     フォローとフォロワーのProfileを取得するためのシリアライザー
     """
+
     class Meta:
         model = Profile
-        fields = ['username', 'created_on', 'img']
+        fields = ["username", "created_on", "img"]
+
 
 class ConnectionSerializer(serializers.ModelSerializer):
     """
     # フォロー機能のためのシリアライザー
     """
-    follower = FollowsProfileSerializer(source='follower', read_only=True)
-    following = FollowsProfileSerializer(source='following', read_only=True)
+
+    follower = FollowsProfileSerializer(source="follower", read_only=True)
+    following = FollowsProfileSerializer(source="following", read_only=True)
 
     class Meta:
         model = Connection
-        fields = ['follower', 'following']
-
+        fields = ["follower", "following"]
 
 
 # プロフィールモデルにフォローとフォロワーを格納する
@@ -28,6 +33,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     """
     # プロフィールモデルにフォローとフォロワーを格納する
     """
+
     followings = serializers.SerializerMethodField()
     followers = serializers.SerializerMethodField()
     created_on = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
@@ -35,7 +41,16 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'account',  'created_on', 'updated_on', 'img', 'followings', 'followers']
+        fields = [
+            "id",
+            "username",
+            "account",
+            "created_on",
+            "updated_on",
+            "img",
+            "followings",
+            "followers",
+        ]
         extra_kwargs = {"account": {"read_only": True}}
 
     def get_followings(self, profile_instance):
@@ -54,9 +69,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         follower_profiles = [connection.follower for connection in followers]
         return FollowsProfileSerializer(follower_profiles, many=True).data
 
-class ProfilePatchSerializer(serializers.ModelSerializer):
 
+class ProfilePatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'account', 'img']
+        fields = ["id", "username", "account", "img"]
         extra_kwargs = {"account": {"read_only": True}}
