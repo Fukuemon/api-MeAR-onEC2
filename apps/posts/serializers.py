@@ -83,7 +83,7 @@ class PostListSerializer(serializers.ModelSerializer):
     """
 
     author = serializers.ReadOnlyField(source="author.username")
-    author_image = serializers.ReadOnlyField(source="author.img")
+    author_image = serializers.ReadOnlyField(source="author.img.url")
     author_id = serializers.ReadOnlyField(source="author.id")
     likes = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)

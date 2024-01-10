@@ -50,13 +50,6 @@ class PostViewSet(viewsets.ModelViewSet):
     def list(self, request):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
-        data = serializer.data
-
-        for item in data:
-            # item は辞書形式です
-            if "author_image" in item:
-                # author_image を変更する
-                item["author_image"] = str(item["author_image"])
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
