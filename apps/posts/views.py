@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
@@ -22,45 +24,83 @@ from .serializers import PostListSerializer
 from .serializers import PostUpdateSerializer
 from .serializers import TagListSerializer
 
+# Loggerの設定
+logger = logging.getLogger(__name__)
+
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostListSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = PostFilter
+    filterer_class = PostFilter
     parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
-        return Post.objects.all()
+        queryset = Post.objects.all()
+        return queryset
 
     def get_object(self, pk=None):
-        return get_object_or_404(Post, pk=pk)
+        post = get_object_or_404(Post, pk=pk)
+        return post
 
     def get_permissions(self):
         if self.action == "list" or self.action == "retrieve":
             return [AllowAny()]
         return [IsAuthenticated()]
 
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        data = serializer.data
+
+        for item in data:
+            # item は辞書形式です
+            if "author_image" in item:
+                # author_image を変更する
+                item["author_image"] = str(item["author_image"])
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def create(self, request, *args, **kwargs):
+        """
+        投稿作成
+        tagsは整数型にrequestをintに変換してからそのまま保存する
+        """
+        tags = request.data.getlist("tags[]")  # 'tags[]' のデータを取得
+        tags = [int(tag) for tag in tags]  # 文字列を整数に変換
+        print(tags)
+
         post_serializer = PostCreateSerializer(data=request.data)
         if post_serializer.is_valid():
             author = request.user.profile
             post_serializer.save(author=author)
+
+            # tagの処理
+            for tag in tags:
+                post_serializer.instance.tags.add(tag)
             return Response(post_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
         post = self.get_object(pk)
+
         post_serializer = PostDetailSerializer(post)
         return Response(post_serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None, **kwargs):
         partial = kwargs.pop("partial", False)
         post = self.get_object(pk)
+        tags = request.data.getlist("tags[]")  # 'tags[]' のデータを取得
+        tags = [int(tag) for tag in tags]  # 文字列を整数に変換
         post_serializer = PostUpdateSerializer(post, data=request.data, partial=partial)
 
         if post_serializer.is_valid():
             post_serializer.save()
+
+            if tags:
+                post_serializer.instance.tags.clear()  # 既存のタグを削除
+                for tag in tags:
+                    post_serializer.instance.tags.add(tag)
+
             return Response(post_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

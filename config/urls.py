@@ -1,3 +1,4 @@
+from django.conf.urls.static import static
 from django.contrib import admin
 
 # Swagger
@@ -14,6 +15,7 @@ from rest_framework_simplejwt.views import TokenVerifyView
 
 # Login
 from apps.accounts.views import LoginView
+from config import settings
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -51,3 +53,5 @@ urlpatterns = [
     path("profile/", include("apps.profiles.urls")),
     path("post/", include("apps.posts.urls")),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
