@@ -227,6 +227,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:8000",
     "https://mear.vercel.app",
+    "https://api.mear-app.com",
 ]
 
 LOGGING = {
