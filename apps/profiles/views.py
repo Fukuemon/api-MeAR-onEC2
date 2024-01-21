@@ -41,9 +41,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class MyProfileView(APIView):
     serializer_class = ProfileSerializer
 
-    def get(self, request, format=None):
-        profiles = Profile.objects.filter(account=request.user)
-        serializer = self.serializer_class(profiles, many=True)
+    def get(
+        self,
+        request,
+    ):
+        profile = Profile.objects.get(account=request.user)
+        serializer = ProfileSerializer(profile)
         return Response(serializer.data)
 
     def patch(self, request, format=None):
