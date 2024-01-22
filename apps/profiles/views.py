@@ -105,10 +105,10 @@ class ProfileFollowView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProfileSerializer
 
-    def post(self, request, account_id):
+    def post(self, request, profile_id):
         user = request.user
         try:
-            target_user_profile = get_object_or_404(Profile, account__id=account_id)
+            target_user_profile = get_object_or_404(Profile, id=profile_id)
         except Http404:
             return Response(
                 {"detail": "対象のユーザーが存在しません"}, status=status.HTTP_404_NOT_FOUND
@@ -121,10 +121,10 @@ class ProfileFollowView(APIView):
         Connection.objects.create(follower=user.profile, following=target_user_profile)
         return Response({"detail": "フォローに成功しました"}, status=status.HTTP_201_CREATED)
 
-    def delete(self, request, account_id):
+    def delete(self, request, profile_id):
         user = request.user
         try:  # ユーザーが存在しない場合は404を返す
-            target_user_profile = get_object_or_404(Profile, account__id=account_id)
+            target_user_profile = get_object_or_404(Profile, id=profile_id)
         except Http404:
             return Response(
                 {"detail": "対象のユーザーが存在しません"}, status=status.HTTP_404_NOT_FOUND

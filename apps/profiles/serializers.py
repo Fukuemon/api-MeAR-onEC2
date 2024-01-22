@@ -12,7 +12,7 @@ class FollowsProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ["username", "created_on", "img"]
+        fields = ["id", "username", "created_on", "img"]
 
 
 class ConnectionSerializer(serializers.ModelSerializer):
