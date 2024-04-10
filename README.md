@@ -1,9 +1,3 @@
-# api-MeAR
-
-~MeAR~ 3D で見るグルメレビューアプリのバックエンド
-
-- [ER 図とエンドポイント](/docs/Endpoint-and-Entity-Relationship-Diagram.md)
-
 ## 開発環境準備
 
 - 仮データとマイグレーションが実行され、サーバーが起動する
@@ -115,3 +109,5 @@ main ブランチに merge する前に確認する作業を行う
 (TBD)
 main ブランチから派生する
 リリース後に起きた緊急のバグ対応を行う
+
+- [ER 図とエンドポイント](/docs/Endpoint-and-Entity-Relationship-Diagram.md)
