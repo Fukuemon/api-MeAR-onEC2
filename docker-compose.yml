@@ -1,8 +1,10 @@
 version: '3.8'
 services:
-  backend:
-    container_name: django
-    build: .
+  app:
+    container_name: mear-app
+    build:
+        context: .
+        dockerfile: docker/python/Dockerfile
     volumes:
       - .:/app
     ports:
@@ -10,16 +12,29 @@ services:
     depends_on:
         - db
   db:
-    container_name: postgres
+    container_name: mear-db
     image: postgres
     restart: always
     environment:
-      - POSTGRES_DB=django
+      - POSTGRES_DB=mear
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
     ports:
       - "5432:5432"
     volumes:
       - postgresdb:/var/lib/postgresql
+      - ./docker/db_init/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ./docker/db_init/mear-db-dump.sql:/db-init/mear-db-dump.sql
+  nodejs:
+    container_name: mear-node
+    build:
+      context: .
+      dockerfile: docker/nodejs/Dockerfile
+    restart: always
+    tty: true
+    volumes:
+      - .:/app
+    ports:
+      - "3001:3000"
 volumes:
   postgresdb:
