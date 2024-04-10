@@ -1,0 +1,8 @@
+{
+  "name": "api-mear-onec2",
+  "version": "0.1.0",
+  "description": "~MeAR~ 3Dで見るグルメレビューアプリのバックエンド",
+  "dependencies": {
+    "husky": "^9.0.11"
+  }
+}
