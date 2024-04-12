@@ -31,13 +31,32 @@ logger = logging.getLogger(__name__)
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostListSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filterer_class = PostFilter
+    filter_backends = DjangoFilterBackend
+    filter_class = PostFilter
     parser_classes = (MultiPartParser, FormParser)
     pagination_class = PaginationClass
 
     def get_queryset(self):
         queryset = Post.objects.all()
+        following = self.request.query_params.get("following", None)
+        model_exists = self.request.query_params.get("model_exists", None)
+        # ユーザーが認証されていて、クエリパラメータ `following` が `true` の場合にのみフィルタリング
+        if self.request.user.is_authenticated and following == "true":
+            profile = self.request.user.profile
+            following_users_ids = profile.followings.values_list("id", flat=True)
+            queryset = queryset.filter(author__id__in=following_users_ids)
+
+        if model_exists:
+            filtered_posts = []
+            for post in queryset:
+                serializer = self.serializer_class(post)
+                # シリアライザで追加されたmodel_exists_flgを確認
+                if serializer.data.get("model_exists_flg") == (
+                    model_exists.lower() in ["true", "1", "t", "yes", "y"]
+                ):
+                    filtered_posts.append(post)
+            queryset = filtered_posts
+
         return queryset
 
     def get_object(self, pk=None):
